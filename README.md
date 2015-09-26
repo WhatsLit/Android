@@ -1,2 +1,0 @@
-# Android
-the best os

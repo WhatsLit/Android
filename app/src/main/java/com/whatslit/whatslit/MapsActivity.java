@@ -61,5 +61,64 @@ public class MapsActivity extends FragmentActivity {
      */
     private void setUpMap() {
         //mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+
+        //TODO: move camera to user's location
+
+        //TODO: get locations/scores from server dynamically and put markers on map
+
+        //TODO: setup listeners
+
+    }
+
+
+    //The Event class stores an event. The purpose of this
+    //class is to organize events easier
+    public class Event{
+
+        private double lat;
+        private double lon;
+        private int rating;
+        private String eventType;
+        private More more;
+
+
+        //Creates a new Event, with a given location, rating, event type, and more info
+        public Event(double la, double lo, int r, String e, More m){
+
+            lat=la;
+            lon=lo;
+            rating=r;
+            eventType=e;
+            more=m;
+        }
+
+
+    }
+
+    //The More class stores the further information associated
+    //with an event.The purpose of this class is to store further
+    //information in case we want to show this info in a new window.
+    public class More{
+
+        private String eventName;
+        private String hostName;
+        private String description;
+        private String[] comments;
+
+        public More(String e, String h, String d, String[] c){
+
+            eventName=e;
+            hostName=h;
+            description=d;
+
+            comments=new String[c.length];
+
+            for(int i=0; i<c.length; i++){
+
+                comments[i]=c[i];
+            }
+        }
+
+
     }
 }

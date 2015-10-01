@@ -103,11 +103,11 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     public void registerAccount(){
 
 
-        //TODO: register account
+
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
 
-
+        //TODO: send account info to the server
 
     }
 

@@ -29,12 +29,15 @@ import android.content.Intent;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.json.*;
 
 /**
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
+
+    //TODO: Enter as guest option
     /**
      * A dummy authentication store containing known user names and passwords.
      * TODO: remove after connecting to a real authentication system.
@@ -99,13 +102,8 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         getLoaderManager().initLoader(0, null, this);
     }
 
-    //Attempts to register the account specified by the login form.
+    //Attempts to register the account by launching a new activity
     public void registerAccount(){
-
-
-
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
 
         //TODO: send account info to the server
 
@@ -292,6 +290,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                 return false;
             }
 
+            //TODO: change w/connection to server
             for (String credential : DUMMY_CREDENTIALS) {
                 String[] pieces = credential.split(":");
                 if (pieces[0].equals(mEmail)) {
@@ -312,7 +311,9 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             if (success) {
 
                 //starts map activity
-                Intent map = new Intent(getApplicationContext(),MapsActivity.class);
+                //TODO: send user info to map activity
+                Intent map = new Intent(getApplicationContext(), MapsActivity.class);
+                map.putExtra("username", mEmail.substring(0, mEmail.indexOf("@")));
                 startActivity(map);
 
             } else {

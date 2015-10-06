@@ -7,22 +7,40 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import java.util.*;
+import android.content.Intent;
+import org.json.*;
 
 public class MapsActivity extends FragmentActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    private ArrayList<Event> eventsInArea;
+    private User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Bundle extras=getIntent().getExtras();
+        String username=extras.getString("username");
+
+        //TODO: get info about user from server and create a user object associated w/current user
+
+
+        //TODO: load events from server and update eventsInArea
+
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
+
+        //TODO: set up markers for buttons
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
+
+        //TODO: check shit from server every minute
     }
 
     /**
@@ -62,11 +80,12 @@ public class MapsActivity extends FragmentActivity {
     private void setUpMap() {
         //mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
 
+
         //TODO: move camera to user's location
 
-        //TODO: get locations/scores from server dynamically and put markers on map
+        //TODO: put markers on map for each event
 
-        //TODO: setup listeners
+        //TODO: setup listeners for markers
 
     }
 
@@ -75,50 +94,184 @@ public class MapsActivity extends FragmentActivity {
     //class is to organize events easier
     public class Event{
 
+        public static final String rating_key="Rating";
+        public static final String event_type_key="Event Type";
+        public static final String comments_key="Comments";
+        public static final String description_key="Description";
+
+        private int ID;
         private double lat;
         private double lon;
         private int rating;
         private String eventType;
-        private More more;
+        private int updateCount; //updates whenever any event instances are changed
+        private long timePosted;
+        private int numComments;
+        private String description;
+        private int creatorID;
+        private String creatorUsername;
+        private ArrayList<Comment> comments;
 
+        //Creates a new Event
+        public Event(int i, double la, double lo, int r, String e, long t, int n, String d, int c, String cu){
 
-        //Creates a new Event, with a given location, rating, event type, and more info
-        public Event(double la, double lo, int r, String e, More m){
-
+            ID=i;
             lat=la;
             lon=lo;
             rating=r;
             eventType=e;
-            more=m;
+            updateCount=0;
+            timePosted=t; //in milliseconds
+            numComments=n;
+            comments=new ArrayList<Comment>(numComments); //initialized empty
+            description=d;
+            creatorID=c; //-1 if posted anonymously
+            creatorUsername=cu; //null if posted anonymously
+
+            //TODO: send this info to server
+
+            //TODO: update view with new event
+            //this involves creating a new marker and listener for this marker
         }
 
+        //begin accessors
+        public int getID(){
 
-    }
+            return ID;
+        }
 
-    //The More class stores the further information associated
-    //with an event.The purpose of this class is to store further
-    //information in case we want to show this info in a new window.
-    public class More{
+        public double getLat(){
 
-        private String eventName;
-        private String hostName;
-        private String description;
-        private String[] comments;
+            return lat;
+        }
 
-        public More(String e, String h, String d, String[] c){
+        public double getLon(){
 
-            eventName=e;
-            hostName=h;
-            description=d;
+            return lon;
+        }
 
-            comments=new String[c.length];
+        public int getRating(){
 
-            for(int i=0; i<c.length; i++){
+            return rating;
+        }
 
-                comments[i]=c[i];
+        public String getEventType(){
+
+            return eventType;
+        }
+
+        public int getUpdateCount(){
+
+            return updateCount;
+        }
+
+        public long getTimePosted(){
+
+            return timePosted;
+        }
+
+        public int getNumComments(){
+
+            return numComments;
+        }
+
+        public String getDescription(){
+
+            return description;
+        }
+
+        public int getCreatorID(){
+
+            return creatorID;
+        }
+
+        public String getCreatorUsername(){
+
+            return creatorUsername;
+        }
+
+        public ArrayList<Comment> getComments(){
+
+            return comments;
+        }
+        //end accessors
+
+        //returns the number of seconds since the event was posted
+        public int secondsSincePosted(){
+
+            return (int)((System.currentTimeMillis()-timePosted)/1000);
+        }
+
+        //for adding comments the first time comments are retrieved from the server
+        public void storeComments(Comment[] toAdd){
+
+            for (Comment current: toAdd){
+
+                comments.add(current);
             }
         }
 
+        //begin mutators
+        public void addComment(Comment toAdd){
+
+            comments.add(toAdd);
+            numComments+=1;
+
+            updateSomeAttribute(comments_key);
+        }
+
+        //votes an event up or down
+        public void vote(boolean up){
+
+            if (up)
+                rating++;
+
+            else
+                rating--;
+
+            updateSomeAttribute(rating_key);
+        }
+
+        public void changeEventType(String newEventType){
+
+            eventType=newEventType;
+            updateSomeAttribute(event_type_key);
+        }
+
+        public void changeDescription(String newDescription){
+
+            description=newDescription;
+            updateSomeAttribute(description_key);
+        }
+        //end mutators
+
+        //updates immediately on current view, and sends update to server so other users
+        //can receive this update
+        private void updateSomeAttribute(String attributeName){
+
+            updateCount++;
+
+            //TODO: send update to server
+            //TODO: update view
+        }
+    }
+
+    //Comment class--each event will have arraylist of comments
+    public class Comment{
+
+        private String text;
+        private long timePosted;
+        private int posterID;
+        private String posterUsername;
+        private int rating;
+
+    }
+
+    //User class
+    public class User{
+
+        private int ID;
+        //other stuff?
 
     }
 }

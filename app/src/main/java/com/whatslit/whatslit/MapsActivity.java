@@ -69,7 +69,14 @@ public class MapsActivity extends FragmentActivity {
                 setUpMap();
             }
         }
+
+        for(Event next:eventsInArea){
+
+
+        }
     }
+
+
 
     /**
      * This is where we can add markers or lines, add listeners or move the camera. In this case, we

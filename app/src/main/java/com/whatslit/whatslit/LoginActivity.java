@@ -105,10 +105,9 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     //Attempts to register the account by launching a new activity
     public void registerAccount(){
 
-        //TODO: send account info to the server
+        //TODO: start a new activity to register a new account
 
     }
-
 
     /**
      * Attempts to sign in the account specified by the login form.

@@ -29,7 +29,13 @@ import android.content.Intent;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.android.volley.*;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import java.net.*;
 import org.json.*;
+
 
 /**
  * A login screen that offers login via email/password.
@@ -49,6 +55,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
+    private String confirmationCode;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -282,6 +289,26 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
 
+            RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+            String url ="http://api.whatslit.io/events";
+
+            // Request a string response from the provided URL.
+            JsonArrayRequest stringRequest = new JsonArrayRequest(url, new Response.Listener<JSONArray>() {
+                        @Override
+                        public void onResponse(JSONArray response) {
+
+
+
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                        //do something
+                }
+            });
+            // Add the request to the RequestQueue.
+            queue.add(stringRequest);
+
             try {
                 // Simulate network access.
                 Thread.sleep(2000);
@@ -290,13 +317,13 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             }
 
             //TODO: change w/connection to server
-            for (String credential : DUMMY_CREDENTIALS) {
+            /*for (String credential : DUMMY_CREDENTIALS) {
                 String[] pieces = credential.split(":");
                 if (pieces[0].equals(mEmail)) {
                     // Account exists, return true if the password matches.
                     return pieces[1].equals(mPassword);
                 }
-            }
+            }*/
 
             // if nothing in the set of valid emails equals the email given
             return false;

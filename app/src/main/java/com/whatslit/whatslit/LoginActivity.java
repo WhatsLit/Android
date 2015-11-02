@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,9 +32,10 @@ import java.util.ArrayList;
 import java.util.List;
 import com.android.volley.*;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import java.net.*;
+import java.util.*;
 import org.json.*;
 
 
@@ -48,9 +50,9 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
      * A dummy authentication store containing known user names and passwords.
      * TODO: remove after connecting to a real authentication system.
      */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
+    /*private static final String[] DUMMY_CREDENTIALS = new String[]{
             "foo@example.edu:hello", "bar@example.edu:world"
-    };
+    }*/
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -132,7 +134,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
+        String login = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
 
         boolean cancel = false;
@@ -146,11 +148,11 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         }
 
         // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
+        if (TextUtils.isEmpty(login)) {
             mEmailView.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
-        } else if (!isEmailValid(email)) {
+        } else if (!isEmailValid(login)) {
             mEmailView.setError(getString(R.string.error_invalid_email));
             focusView = mEmailView;
             cancel = true;
@@ -164,7 +166,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+            mAuthTask = new UserLoginTask(login, password);
             mAuthTask.execute((Void) null);
         }
     }
@@ -173,12 +175,12 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     //e.g. has a @ and is a .edu address
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
-        return email.contains("@") && email.substring(email.length()-4).equals(".edu");
+        return true;
     }
 
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
-        return password.length() > 4;
+        return true;
     }
 
     /**
@@ -277,11 +279,11 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
-        private final String mEmail;
+        private final String mLogin;
         private final String mPassword;
 
-        UserLoginTask(String email, String password) {
-            mEmail = email;
+        UserLoginTask(String login, String password) {
+            mLogin = login;
             mPassword = password;
         }
 
@@ -290,33 +292,54 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             // TODO: attempt authentication against a network service.
 
             RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-            String url ="http://api.whatslit.io/events";
+            String url ="http://api.whatslit.io/api-token-auth/";
+
+            JSONObject toSend=new JSONObject();
+            try {
+                toSend.put("username", mLogin);
+                toSend.put("password", mPassword);
+            } catch(Exception e){
+
+                System.exit(-1);
+            }
 
             // Request a string response from the provided URL.
-            JsonArrayRequest stringRequest = new JsonArrayRequest(url, new Response.Listener<JSONArray>() {
+            JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, url, toSend, new Response.Listener<JSONObject>() {
                         @Override
-                        public void onResponse(JSONArray response) {
+                        public void onResponse(JSONObject response) {
 
+                            try {
+                                confirmationCode = (String)response.get("token");
+                            }catch(Exception e){
 
-
+                                System.exit(-1);
+                            }
                         }
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                        //do something
+                    Object json = null;
+
+                    NetworkResponse response = error.networkResponse;
+
+                    Log.i("response is null: ", (response == null) + "");
+                    if (response != null && response.data != null) {
+                        json = new String(response.data);
+                        if (json != null) Log.e("error", json.toString());
+                    }
                 }
             });
             // Add the request to the RequestQueue.
             queue.add(stringRequest);
 
-            try {
+            /*try {
                 // Simulate network access.
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
                 return false;
-            }
+            }*/
 
-            //TODO: change w/connection to server
+
             /*for (String credential : DUMMY_CREDENTIALS) {
                 String[] pieces = credential.split(":");
                 if (pieces[0].equals(mEmail)) {
@@ -326,7 +349,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             }*/
 
             // if nothing in the set of valid emails equals the email given
-            return false;
+            return confirmationCode!=null;
         }
 
         @Override
@@ -337,9 +360,10 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             if (success) {
 
                 //starts map activity
-                //TODO: send user info to map activity
+                //send user info to map`s activity
                 Intent map = new Intent(getApplicationContext(), MapsActivity.class);
-                map.putExtra("username", mEmail.substring(0, mEmail.indexOf("@")));
+                map.putExtra("username", mLogin);
+                map.putExtra("token", confirmationCode);
                 startActivity(map);
 
             } else {
@@ -355,4 +379,3 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         }
     }
 }
-

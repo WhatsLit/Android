@@ -23,9 +23,8 @@ public class MapsActivity extends FragmentActivity {
 
         Bundle extras=getIntent().getExtras();
         String username=extras.getString("username");
-
-        //TODO: get info about user from server and create a user object associated w/current user
-
+        String token=extras.getString("token");
+        currentUser=new User(username, token);
 
         //TODO: load events from server and update eventsInArea
 
@@ -277,8 +276,14 @@ public class MapsActivity extends FragmentActivity {
     //User class
     public class User{
 
-        private int ID;
-        //other stuff?
+        private String username;
+        private String token;
+
+        public User(String u, String t){
+
+            username=u;
+            token=t;
+        }
 
     }
 }
